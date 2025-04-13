@@ -31,5 +31,11 @@
       nekoray = pkgs.libsForQt5.callPackage pkgs/nekoray_3.26/package.nix {};
       nekobox = pkgs.callPackage pkgs/nekoray_4.0.1/package.nix {};
     });
+    overlays = {
+      default = final: prev: {
+        nekoray = self.packages.nekoray;
+        nekobox = self.packages.nekobox;
+      };
+    };
   };
 }
