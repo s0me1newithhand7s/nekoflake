@@ -18,16 +18,15 @@
     self,
     nixpkgs,
     ...
-  } @ inputs : let
-      forAllSystems =
-        function:
-        nixpkgs.lib.genAttrs [
-          "x86_64-linux"
-          "aarch64-linux"
-          "aarch64-darwin"
-        ] (system: function nixpkgs.legacyPackages.${system});
-    in {
-    packages = forAllSystems (pkgs:  {
+  } @ inputs: let
+    forAllSystems = function:
+      nixpkgs.lib.genAttrs [
+        "x86_64-linux"
+        "aarch64-linux"
+        "aarch64-darwin"
+      ] (system: function nixpkgs.legacyPackages.${system});
+  in {
+    packages = forAllSystems (pkgs: {
       nekoray = pkgs.libsForQt5.callPackage pkgs/nekoray_3.26/package.nix {};
       nekobox = pkgs.callPackage pkgs/nekoray_4.0.1/package.nix {};
     });
@@ -40,6 +39,6 @@
     checks = forAllSystems (pkgs: {
       default = pkgs.callPackage ./pkgs/checks.nix {};
     });
-    formatter = forAllSystems ( pkgs.alejandra );
+    formatter = forAllSystems (pkgs.alejandra);
   };
 }

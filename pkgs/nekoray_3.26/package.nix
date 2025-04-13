@@ -11,16 +11,12 @@
   callPackage,
   makeDesktopItem,
   copyDesktopItems,
-
   v2ray-geoip,
   v2ray-domain-list-community,
   sing-geoip,
   sing-geosite,
-}:
-
-let
-  fetchSource =
-    args:
+}: let
+  fetchSource = args:
     fetchFromGitHub (
       args
       // {
@@ -70,93 +66,94 @@ let
   installGeodata = lib.concatStringsSep "\n" (
     lib.mapAttrsToList (filename: file: ''
       install -Dm644 ${file} "$out/share/nekoray/${filename}"
-    '') geodata
+    '')
+    geodata
   );
 in
-stdenv.mkDerivation (finalAttrs: {
-  pname = "nekoray";
-  version = "3.26";
+  stdenv.mkDerivation (finalAttrs: {
+    pname = "nekoray";
+    version = "3.26";
 
-  src = fetchSource {
-    name = "nekoray";
-    rev = finalAttrs.version;
-    hash = "sha256-fDm6fCI6XA4DHKCN3zm9B7Qbdh3LTHYGK8fPmeEnhjI=";
-    fetchSubmodules = true;
-  };
-
-  strictDeps = true;
-
-  nativeBuildInputs = [
-    libsForQt5.wrapQtAppsHook
-    cmake
-    ninja
-    copyDesktopItems
-  ];
-
-  buildInputs = [
-    libsForQt5.qtbase
-    libsForQt5.qttools
-    libsForQt5.qtwayland
-    libsForQt5.qtx11extras
-    protobuf
-    yaml-cpp
-    zxing-cpp
-  ];
-
-  # NKR_PACKAGE makes sure the app uses the user's config directory to store it's non-static content
-  # it's essentially the same as always setting the -appdata flag when running the program
-  cmakeFlags = [ (lib.cmakeBool "NKR_PACKAGE" true) ];
-
-  installPhase = ''
-    runHook preInstall
-
-    install -Dm755 nekoray "$out/share/nekoray/nekoray"
-    mkdir -p "$out/bin"
-    ln -s "$out/share/nekoray/nekoray" "$out/bin"
-
-    # nekoray looks for other files and cores in the same directory it's located at
-    ln -s ${finalAttrs.passthru.nekoray-core}/bin/nekoray_core "$out/share/nekoray/nekoray_core"
-    ln -s ${finalAttrs.passthru.nekobox-core}/bin/nekobox_core "$out/share/nekoray/nekobox_core"
-
-    ${installGeodata}
-
-    install -Dm644 "$src/res/public/nekoray.png" "$out/share/icons/hicolor/256x256/apps/nekoray.png"
-
-    runHook postInstall
-  '';
-
-  desktopItems = [
-    (makeDesktopItem {
+    src = fetchSource {
       name = "nekoray";
-      desktopName = "nekoray";
-      exec = "nekoray";
-      icon = "nekoray";
-      comment = finalAttrs.meta.description;
-      terminal = false;
-      categories = [
-        "Network"
-        "Application"
-      ];
-    })
-  ];
-
-  passthru = {
-    nekobox-core = callPackage ./nekobox-core.nix {
-      inherit (finalAttrs) src version;
-      inherit extraSources;
+      rev = finalAttrs.version;
+      hash = "sha256-fDm6fCI6XA4DHKCN3zm9B7Qbdh3LTHYGK8fPmeEnhjI=";
+      fetchSubmodules = true;
     };
-    nekoray-core = callPackage ./nekoray-core.nix {
-      inherit (finalAttrs) src version;
-      inherit extraSources;
-    };
-  };
 
-  meta = {
-    description = "Qt based cross-platform GUI proxy configuration manager";
-    homepage = "https://github.com/MatsuriDayo/nekoray";
-    license = lib.licenses.gpl3Plus;
-    mainProgram = "nekoray";
-    maintainers = with lib.maintainers; [ s0me1newithhand7s ]; # aka hand7s
-    platforms = lib.platforms.linux;
-  };
-})
+    strictDeps = true;
+
+    nativeBuildInputs = [
+      libsForQt5.wrapQtAppsHook
+      cmake
+      ninja
+      copyDesktopItems
+    ];
+
+    buildInputs = [
+      libsForQt5.qtbase
+      libsForQt5.qttools
+      libsForQt5.qtwayland
+      libsForQt5.qtx11extras
+      protobuf
+      yaml-cpp
+      zxing-cpp
+    ];
+
+    # NKR_PACKAGE makes sure the app uses the user's config directory to store it's non-static content
+    # it's essentially the same as always setting the -appdata flag when running the program
+    cmakeFlags = [(lib.cmakeBool "NKR_PACKAGE" true)];
+
+    installPhase = ''
+      runHook preInstall
+
+      install -Dm755 nekoray "$out/share/nekoray/nekoray"
+      mkdir -p "$out/bin"
+      ln -s "$out/share/nekoray/nekoray" "$out/bin"
+
+      # nekoray looks for other files and cores in the same directory it's located at
+      ln -s ${finalAttrs.passthru.nekoray-core}/bin/nekoray_core "$out/share/nekoray/nekoray_core"
+      ln -s ${finalAttrs.passthru.nekobox-core}/bin/nekobox_core "$out/share/nekoray/nekobox_core"
+
+      ${installGeodata}
+
+      install -Dm644 "$src/res/public/nekoray.png" "$out/share/icons/hicolor/256x256/apps/nekoray.png"
+
+      runHook postInstall
+    '';
+
+    desktopItems = [
+      (makeDesktopItem {
+        name = "nekoray";
+        desktopName = "nekoray";
+        exec = "nekoray";
+        icon = "nekoray";
+        comment = finalAttrs.meta.description;
+        terminal = false;
+        categories = [
+          "Network"
+          "Application"
+        ];
+      })
+    ];
+
+    passthru = {
+      nekobox-core = callPackage ./nekobox-core.nix {
+        inherit (finalAttrs) src version;
+        inherit extraSources;
+      };
+      nekoray-core = callPackage ./nekoray-core.nix {
+        inherit (finalAttrs) src version;
+        inherit extraSources;
+      };
+    };
+
+    meta = {
+      description = "Qt based cross-platform GUI proxy configuration manager";
+      homepage = "https://github.com/MatsuriDayo/nekoray";
+      license = lib.licenses.gpl3Plus;
+      mainProgram = "nekoray";
+      maintainers = with lib.maintainers; [s0me1newithhand7s]; # aka hand7s
+      platforms = lib.platforms.linux;
+    };
+  })

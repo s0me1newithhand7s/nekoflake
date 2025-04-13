@@ -3,27 +3,20 @@
   stdenv,
   fetchFromGitHub,
   qt6,
-
   cmake,
   ninja,
-
   protobuf,
   yaml-cpp,
   zxing-cpp,
-
   callPackage,
   copyDesktopItems,
   makeDesktopItem,
-
   v2ray-geoip,
   v2ray-domain-list-community,
   sing-geoip,
   sing-geosite,
-}:
-
-let
-  fetchSource =
-    args:
+}: let
+  fetchSource = args:
     fetchFromGitHub (
       args
       // {
@@ -61,85 +54,86 @@ let
   installGeodata = lib.concatStringsSep "\n" (
     lib.mapAttrsToList (filename: file: ''
       install -Dm644 ${file} "$out/share/nekobox/${filename}"
-    '') geodata
+    '')
+    geodata
   );
 in
-stdenv.mkDerivation (finalAttrs: {
-  pname = "nekoray";
-  version = "4.0.1";
+  stdenv.mkDerivation (finalAttrs: {
+    pname = "nekoray";
+    version = "4.0.1";
 
-  src = fetchSource {
-    name = "nekoray";
-    rev = finalAttrs.version;
-    hash = "sha256-AaL/mROOciU42A6VDhsi6o0wUIReu0OWibEjKveHym8=";
-    fetchSubmodules = true;
-  };
-
-  patches = [ ./use-appdata.patch ];
-
-  strictDeps = true;
-
-  nativeBuildInputs = [
-    cmake
-    copyDesktopItems
-    ninja
-    qt6.qtsvg
-    qt6.qttools
-    qt6.wrapQtAppsHook
-  ];
-
-  buildInputs = [
-    protobuf
-    qt6.qtbase
-    qt6.qtsvg
-    yaml-cpp
-    zxing-cpp
-  ];
-
-  cmakeFlags = [ "-DQT_VERSION_MAJOR=6" ];
-
-  installPhase = ''
-    runHook preInstall
-
-    install -Dm755 nekobox "$out/share/nekobox/nekobox"
-    mkdir -p "$out/bin"
-    ln -s "$out/share/nekobox/nekobox" "$out/bin"
-
-    # nekoray looks for other files and cores in the same directory it's located at
-    ln -s ${finalAttrs.passthru.nekobox-core}/bin/nekobox_core "$out/share/nekobox/nekobox_core"
-
-    ${installGeodata}
-
-    install -Dm644 "$src/res/public/nekobox.png" "$out/share/icons/hicolor/256x256/apps/nekobox.png"
-
-    runHook postInstall
-  '';
-
-  desktopItems = [
-    (makeDesktopItem {
+    src = fetchSource {
       name = "nekoray";
-      desktopName = "NekoRay";
-      exec = "nekobox";
-      icon = "nekobox";
-      comment = finalAttrs.meta.description;
-      terminal = false;
-      categories = [ "Network" ];
-    })
-  ];
-
-  passthru = {
-    nekobox-core = callPackage ./nekobox-core.nix {
-      inherit (finalAttrs) src version;
-      inherit extraSources;
+      rev = finalAttrs.version;
+      hash = "sha256-AaL/mROOciU42A6VDhsi6o0wUIReu0OWibEjKveHym8=";
+      fetchSubmodules = true;
     };
-  };
 
-  meta = {
-    description = "Qt based cross-platform GUI proxy configuration manager";
-    homepage = "https://github.com/MatsuriDayo/nekoray";
-    license = lib.licenses.gpl3Plus;
-    mainProgram = "nekobox";
-    maintainers = with lib.maintainers; [ s0me1newithhand7s ]; # aka hand7s
-    platforms = lib.platforms.linux;
-  };
-})
+    patches = [./use-appdata.patch];
+
+    strictDeps = true;
+
+    nativeBuildInputs = [
+      cmake
+      copyDesktopItems
+      ninja
+      qt6.qtsvg
+      qt6.qttools
+      qt6.wrapQtAppsHook
+    ];
+
+    buildInputs = [
+      protobuf
+      qt6.qtbase
+      qt6.qtsvg
+      yaml-cpp
+      zxing-cpp
+    ];
+
+    cmakeFlags = ["-DQT_VERSION_MAJOR=6"];
+
+    installPhase = ''
+      runHook preInstall
+
+      install -Dm755 nekobox "$out/share/nekobox/nekobox"
+      mkdir -p "$out/bin"
+      ln -s "$out/share/nekobox/nekobox" "$out/bin"
+
+      # nekoray looks for other files and cores in the same directory it's located at
+      ln -s ${finalAttrs.passthru.nekobox-core}/bin/nekobox_core "$out/share/nekobox/nekobox_core"
+
+      ${installGeodata}
+
+      install -Dm644 "$src/res/public/nekobox.png" "$out/share/icons/hicolor/256x256/apps/nekobox.png"
+
+      runHook postInstall
+    '';
+
+    desktopItems = [
+      (makeDesktopItem {
+        name = "nekoray";
+        desktopName = "NekoRay";
+        exec = "nekobox";
+        icon = "nekobox";
+        comment = finalAttrs.meta.description;
+        terminal = false;
+        categories = ["Network"];
+      })
+    ];
+
+    passthru = {
+      nekobox-core = callPackage ./nekobox-core.nix {
+        inherit (finalAttrs) src version;
+        inherit extraSources;
+      };
+    };
+
+    meta = {
+      description = "Qt based cross-platform GUI proxy configuration manager";
+      homepage = "https://github.com/MatsuriDayo/nekoray";
+      license = lib.licenses.gpl3Plus;
+      mainProgram = "nekobox";
+      maintainers = with lib.maintainers; [s0me1newithhand7s]; # aka hand7s
+      platforms = lib.platforms.linux;
+    };
+  })

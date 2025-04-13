@@ -4,7 +4,6 @@
   src,
   extraSources,
 }:
-
 buildGoModule rec {
   pname = "nekoray-core";
   inherit version src;

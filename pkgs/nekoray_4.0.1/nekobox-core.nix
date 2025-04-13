@@ -4,7 +4,6 @@
   src,
   extraSources,
 }:
-
 buildGoModule rec {
   pname = "nekobox-core";
   inherit version src;
