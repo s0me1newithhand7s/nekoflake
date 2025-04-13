@@ -26,6 +26,7 @@
         "aarch64-darwin"
       ] (system: function nixpkgs.legacyPackages.${system});
   in {
+    formatter = forAllSystems (pkgs: pkgs.alejandra);
     packages = forAllSystems (pkgs: {
       nekoray = pkgs.libsForQt5.callPackage pkgs/nekoray_3.26/package.nix {};
       nekobox = pkgs.callPackage pkgs/nekoray_4.0.1/package.nix {};
@@ -36,9 +37,5 @@
         nekobox = self.packages.nekobox;
       };
     };
-    checks = forAllSystems (pkgs: {
-      default = pkgs.callPackage ./pkgs/checks.nix {};
-    });
-    formatter = forAllSystems (pkgs.alejandra);
   };
 }
