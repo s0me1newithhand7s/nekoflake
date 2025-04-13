@@ -37,5 +37,9 @@
         nekobox = self.packages.nekobox;
       };
     };
+    checks = forAllSystems (pkgs: {
+      default = pkgs.callPackage ./pkgs/checks.nix {};
+    });
+    formatter = forAllSystems ( pkgs.alejandra );
   };
 }
