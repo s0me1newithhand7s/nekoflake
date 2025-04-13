@@ -32,10 +32,8 @@
       nekobox = pkgs.callPackage pkgs/nekoray_4.0.1/package.nix {};
     });
     overlays = {
-      default = final: prev: {
-        nekoray = self.packages.nekoray;
-        nekobox = self.packages.nekobox;
-      };
+      nekoray = final: prev: self.packages.nekoray;
+      nekobox = final: prev: self.packages.nekobox;
     };
   };
 }
